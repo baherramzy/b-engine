@@ -1,10 +1,10 @@
 #include <glad/glad.h>
 #include <glfw3.h>
-#include <math.h>
+#include "lib/stb_image/stb_image.cpp"
 
 #include <iostream>
 
-#include <lib/Shader/shader.cpp>
+#include "lib/Shader/shader.cpp"
 
 /* Define window resize callback to adjust viewport */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -48,7 +48,87 @@ void createTriangle()
     /* |       VERTEX 1        |       VERTEX 2        |       VERTEX 3        | */
     /* | X | Y | Z | R | G | B | X | Y | Z | R | G | B | X | Y | Z | R | G | B | */
     /* Stride length (i.e. distance between attribute values) is now 6 floats */
+}
 
+void createRectangle()
+{
+    float vertices[] = {
+         /* Positions */        /* Colors */       /* Texture Co-ords */
+         0.75f,  0.75f, 0.0f,   1.0f, 0.0f, 0.0f,  1.0f, 1.0f,      /* Top Right */
+         0.75f, -0.75f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f,      /* Bottom Right */
+        -0.75f, -0.75f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f,      /* Bottom Left */
+        -0.75f,  0.75f, 0.0f,   1.0f, 1.0f, 0.0f,  0.0f, 1.0f       /* Top Left */
+    };
+
+    /* Vertex indices to avoid the need to define the same vertex multiple times
+    in order to draw two triangles to make up a rectangle */
+    unsigned int indices[] = {
+        3, 0, 1,
+        1, 2, 3,
+    };
+
+    /* Generate and bind Vertex Array, Vertex Buffer and Element Buffer Objects */
+    unsigned int VAO, VBO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+    glBindVertexArray(VAO);
+
+    /* Copy vertex data to buffer memory */
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    /* Position attribute */
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0);
+    glEnableVertexAttribArray(0);
+
+    /* Color attribute */
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 3));
+    glEnableVertexAttribArray(1);
+
+    /* Texture Co-ordinate attribute */
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 6));
+    glEnableVertexAttribArray(2);
+}
+
+void loadTexture(const char* texturePath, int width, int height)
+{
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    /* ------------------- Set texture wrapping and filtering options ------------------- */
+    /*  Wrapping options define what the behavior should be when co-ordinates outside the
+        texture range specified. S and T correspond to the X and Y axes respectively, as does
+        R to Z if working with 3D textures. */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    /*  Filtering options define the approximation method when mapping texture co-ordinates,
+        usually floating point values, to discrete screen pixels. Filtering options for minifying
+        (scaling down) and magnifiying (scaling up) can be defined separately. */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    /* Load and generate the texture */
+    int nrChannels;
+    unsigned char* data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+
+    else
+    {
+        std::cout << "Texture -> Failed to load texture at " << texturePath << std::endl;
+    }
+
+    /* Free image memory */
+    stbi_image_free(data);
 }
 
 int main(void)
@@ -77,8 +157,10 @@ int main(void)
     /* Load OpenGL function pointers from glad lib */
     gladLoadGL();
 
-    /* Create the triangle and load its vertices into buffers */
-    createTriangle();
+    /* Create the rectangle and load its vertices into buffers */
+    createRectangle();
+
+    loadTexture("assets/Textures/wood_container.jpg", 512, 512);
 
     /* Compile and load shaders */
     Shader myShaders("shaders/v.vert", "shaders/f.frag");
@@ -91,8 +173,8 @@ int main(void)
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        /* Render triangle using custom shaders */
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        /* Render rectangle using the indices in the Element Buffer Object and custom shaders */
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
