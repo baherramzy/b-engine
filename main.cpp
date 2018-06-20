@@ -1,5 +1,8 @@
 #include <glad/glad.h>
 #include <glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "lib/stb_image/stb_image.cpp"
 
 #include <iostream>
@@ -189,6 +192,38 @@ int main(void)
         /* Clear screen color */
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        /* Scale down to half size, and rotate counter-clockwise by 90 degrees */
+        /* (Operations take place in reverse, i.e. "bottom up", due to the non commutative nature of matrix multiplication) */
+        glm::mat4 transform = glm::mat4(1.0f);
+        transform = glm::translate(transform, glm::vec3(-0.33f, 0.0f, 0.0f));
+        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
+
+        myShaders.use();
+
+        /* Pass transformation matrix into vertex shader */
+        int transformUniformLocation = glGetUniformLocation(myShaders.shaderProgramID, "transform");
+        glUniformMatrix4fv(transformUniformLocation, 1, GL_FALSE, glm::value_ptr(transform));
+
+        /* Render rectangle using the indices in the Element Buffer Object and custom shaders */
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
+
+
+
+        /* Scale down to half size, and rotate counter-clockwise by 90 degrees */
+        /* (Operations take place in reverse, i.e. "bottom up", due to the non commutative nature of matrix multiplication) */
+        transform = glm::mat4(1.0f);
+        transform = glm::translate(transform, glm::vec3(0.33f, 0.0f, 0.0f));
+        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, -1.0f));
+        transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
+
+        myShaders.use();
+
+        /* Pass transformation matrix into vertex shader */
+        glUniformMatrix4fv(transformUniformLocation, 1, GL_FALSE, glm::value_ptr(transform));
 
         /* Render rectangle using the indices in the Element Buffer Object and custom shaders */
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
