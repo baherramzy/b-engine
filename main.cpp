@@ -3,11 +3,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "lib/stb_image/stb_image.cpp"
 
 #include <iostream>
 
+/* B defined classes */
 #include "lib/Shader/shader.cpp"
+#include "lib/Texture/texture.cpp"
 
 /* Define window resize callback to adjust viewport */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -97,55 +98,6 @@ void createRectangle()
     glEnableVertexAttribArray(2);
 }
 
-int getColorModeFromFileExt(const char* path)
-{
-    const char* extension = path + (strlen(path) - 3);
-    int colorMode = strcmp(extension, "png") == 0 ? GL_RGBA : GL_RGB;
-
-    return colorMode;
-}
-
-void loadTexture(const char* path, int width, int height, GLenum textureUnit)
-{
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glActiveTexture(textureUnit);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    /* ------------------- Set texture wrapping and filtering options ------------------- */
-    /*  Wrapping options define what the behavior should be when co-ordinates outside the
-        texture range are specified. S and T correspond to the X and Y axes respectively, as does
-        R to Z if working with 3D textures. */
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    /*  Filtering options define the approximation method when mapping texture co-ordinates,
-        usually floating point values, to discrete screen pixels. Filtering options for minifying
-        (scaling down) and magnifiying (scaling up) can be defined separately. */
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    /* Load and generate the texture */
-    int nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-
-    if (data)
-    {
-        int colorMode = getColorModeFromFileExt(path);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, colorMode, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-
-    else
-    {
-        std::cout << "Texture -> Failed to load texture at " << path << std::endl;
-    }
-
-    /* Free image memory */
-    stbi_image_free(data);
-}
-
 int main(void)
 {
     GLFWwindow* window;
@@ -175,8 +127,9 @@ int main(void)
     /* Create the rectangle and load its vertices into buffers */
     createRectangle();
 
-    loadTexture("assets/Textures/wood_container.jpg", 512, 512, GL_TEXTURE0);
-    loadTexture("assets/Textures/awesome_face.png", 512, 512, GL_TEXTURE1);
+    Texture myTextures;
+    myTextures.load("assets/Textures/wood_container.jpg", 512, 512);
+    myTextures.load("assets/Textures/awesome_face.png", 512, 512);
 
     /* Compile and load shaders */
     Shader myShaders("shaders/v.vert", "shaders/f.frag");
