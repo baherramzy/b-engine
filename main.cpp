@@ -16,7 +16,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void createTriangle()
+void defineTriangle()
 {
     float vertices[] = {
         /* Positions */          /* Colors */
@@ -54,7 +54,7 @@ void createTriangle()
     /* Stride length (i.e. distance between attribute values) is now 6 floats */
 }
 
-void createRectangle()
+void defineRectangle()
 {
     float vertices[] = {
          /* Positions */        /* Colors */       /* Texture Co-ords */
@@ -98,17 +98,87 @@ void createRectangle()
     glEnableVertexAttribArray(2);
 }
 
+void defineCube()
+{
+    float vertices[] = {
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+
+        0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f
+    };
+
+    /* Generate and bind Vertex Array, Vertex Buffer and Element Buffer Objects */
+    unsigned int VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+
+    /* Copy vertex data to buffer memory */
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    /* Position attribute */
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0);
+    glEnableVertexAttribArray(0);
+
+    /* Color attribute */
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 3));
+    glEnableVertexAttribArray(1);
+
+    /* Texture Co-ordinate attribute */
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 6));
+    glEnableVertexAttribArray(2);
+}
+
 /* Compute the multiplication of the Model - View - Projection matrices */
-glm::mat4 getMVPMatrix(const unsigned int width, const unsigned int height)
+glm::mat4 getMVPMatrix(const unsigned int width, const unsigned int height, glm::vec3 startPos)
 {
     glm::mat4 model, view, proj;
     model = view = proj = glm::mat4(1.0f);
 
-    /* Rotate rectangle around X axis */
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    /* Position model and rotate around X axis */
+    model = glm::translate(model, startPos);
+    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-55.0f), glm::vec3(1.0f, 1.0f, 0.0f));
 
     /* Simulate moving camera backwards by pushing scene forwards */
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -6.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
 
     /* Apply perspective transformation */
     proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
@@ -142,8 +212,24 @@ int main(void)
     /* Load OpenGL function pointers from glad lib */
     gladLoadGL();
 
-    /* Create the rectangle and load its vertices into buffers */
-    createRectangle();
+    glEnable(GL_DEPTH_TEST);
+
+    /* Define the cube and load its vertices into buffers */
+    defineCube();
+
+    /* World space cube positions */
+    glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
 
     Texture myTextures;
     myTextures.load("assets/Textures/wood_container.jpg", 512, 512);
@@ -162,16 +248,18 @@ int main(void)
     {
         /* Clear screen color */
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 mvpMatrix = getMVPMatrix(width, height);
+        for (int i = 0; i < 10; ++i)
+        {
+            glm::mat4 mvpMatrix = getMVPMatrix(width, height, cubePositions[i]);
 
-        /* Pass Model View Projection matrix into vertex shader */
-        int mvpUniformLoc = glGetUniformLocation(myShaders.shaderProgramID, "mvp");
-        glUniformMatrix4fv(mvpUniformLoc, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
+            /* Pass Model View Projection matrix into vertex shader */
+            int mvpUniformLoc = glGetUniformLocation(myShaders.shaderProgramID, "mvp");
+            glUniformMatrix4fv(mvpUniformLoc, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
 
-        /* Render rectangle using the indices in the Element Buffer Object and custom shaders */
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
