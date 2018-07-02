@@ -98,17 +98,35 @@ void createRectangle()
     glEnableVertexAttribArray(2);
 }
 
+/* Compute the multiplication of the Model - View - Projection matrices */
+glm::mat4 getMVPMatrix(const unsigned int width, const unsigned int height)
+{
+    glm::mat4 model, view, proj;
+    model = view = proj = glm::mat4(1.0f);
+
+    /* Rotate rectangle around X axis */
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    /* Simulate moving camera backwards by pushing scene forwards */
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -6.0f));
+
+    /* Apply perspective transformation */
+    proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
+
+    return proj * view * model;
+}
+
 int main(void)
 {
     GLFWwindow* window;
-    unsigned int shaderProgram;
+    const unsigned int width = 800, height = 600;
 
     /* Initialize the library */
     if (!glfwInit())
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -146,37 +164,11 @@ int main(void)
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        /* Scale down to half size, and rotate counter-clockwise by 90 degrees */
-        /* (Operations take place in reverse, i.e. "bottom up", due to the non commutative nature of matrix multiplication) */
-        glm::mat4 transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, glm::vec3(-0.33f, 0.0f, 0.0f));
-        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-        transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
+        glm::mat4 mvpMatrix = getMVPMatrix(width, height);
 
-        myShaders.use();
-
-        /* Pass transformation matrix into vertex shader */
-        int transformUniformLocation = glGetUniformLocation(myShaders.shaderProgramID, "transform");
-        glUniformMatrix4fv(transformUniformLocation, 1, GL_FALSE, glm::value_ptr(transform));
-
-        /* Render rectangle using the indices in the Element Buffer Object and custom shaders */
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-
-
-
-
-        /* Scale down to half size, and rotate counter-clockwise by 90 degrees */
-        /* (Operations take place in reverse, i.e. "bottom up", due to the non commutative nature of matrix multiplication) */
-        transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, glm::vec3(0.33f, 0.0f, 0.0f));
-        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, -1.0f));
-        transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
-
-        myShaders.use();
-
-        /* Pass transformation matrix into vertex shader */
-        glUniformMatrix4fv(transformUniformLocation, 1, GL_FALSE, glm::value_ptr(transform));
+        /* Pass Model View Projection matrix into vertex shader */
+        int mvpUniformLoc = glGetUniformLocation(myShaders.shaderProgramID, "mvp");
+        glUniformMatrix4fv(mvpUniformLoc, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
 
         /* Render rectangle using the indices in the Element Buffer Object and custom shaders */
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
