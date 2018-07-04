@@ -10,10 +10,38 @@
 #include "lib/Shader/shader.cpp"
 #include "lib/Texture/texture.cpp"
 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 6.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
 /* Define window resize callback to adjust viewport */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+/* Keyboard event handler */
+void handleKeyboardEvents(GLFWwindow *window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
+    float cameraSpeed = 2.5f * deltaTime;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
 
 void defineTriangle()
@@ -177,17 +205,7 @@ glm::mat4 getMVPMatrix(const unsigned int width, const unsigned int height, glm:
     model = glm::translate(model, startPos);
     model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-55.0f), glm::vec3(1.0f, 1.0f, 0.0f));
 
-    /* Simulate moving camera backwards by pushing scene forwards */
-    /* Since OpenGL doesn't recognize the concept of a camera, we'll define it */
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 6.0f);
-    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    float cameraRotationRadius = 60.0f;
-    float cameraX = sin(glfwGetTime()) * cameraRotationRadius;
-    float cameraZ = cos(glfwGetTime()) * cameraRotationRadius;
-
-    view = glm::lookAt(glm::vec3(cameraX, 0.0f, cameraZ), cameraTarget, worldUp);
+    view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
     /* Apply perspective transformation */
     proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
@@ -255,6 +273,9 @@ int main(void)
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        /* Listen for keyboard events */
+        handleKeyboardEvents(window);
+
         /* Clear screen color */
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
