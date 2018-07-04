@@ -178,7 +178,16 @@ glm::mat4 getMVPMatrix(const unsigned int width, const unsigned int height, glm:
     model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-55.0f), glm::vec3(1.0f, 1.0f, 0.0f));
 
     /* Simulate moving camera backwards by pushing scene forwards */
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -4.0f));
+    /* Since OpenGL doesn't recognize the concept of a camera, we'll define it */
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 6.0f);
+    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    float cameraRotationRadius = 60.0f;
+    float cameraX = sin(glfwGetTime()) * cameraRotationRadius;
+    float cameraZ = cos(glfwGetTime()) * cameraRotationRadius;
+
+    view = glm::lookAt(glm::vec3(cameraX, 0.0f, cameraZ), cameraTarget, worldUp);
 
     /* Apply perspective transformation */
     proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
