@@ -10,12 +10,19 @@
 #include "lib/Shader/shader.cpp"
 #include "lib/Texture/texture.cpp"
 
+const unsigned int width = 800, height = 600;
+
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 6.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
+float frameDeltaTime = 0.0f;
+float lastFrameTimestamp = 0.0f;
+
+float lastFrameMouseX = width  / 2;
+float lastFrameMouseY = height / 2;
+float cameraPitch = 0.0f, cameraYaw = -90.0f;
+bool isFirstMouseMovement = true;
 
 /* Define window resize callback to adjust viewport */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -29,11 +36,11 @@ void handleKeyboardEvents(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    float currentFrame = glfwGetTime();
-    deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
+    float currentFrameTimestamp = glfwGetTime();
+    frameDeltaTime = currentFrameTimestamp - lastFrameTimestamp;
+    lastFrameTimestamp = currentFrameTimestamp;
 
-    float cameraSpeed = 2.5f * deltaTime;
+    float cameraSpeed = 3.0f * frameDeltaTime;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         cameraPos += cameraSpeed * cameraFront;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -42,6 +49,43 @@ void handleKeyboardEvents(GLFWwindow *window)
         cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+}
+
+void mouse_movement_callback(GLFWwindow *window, double xPos, double yPos)
+{
+    if (isFirstMouseMovement)
+    {
+        lastFrameMouseX = xPos;
+        lastFrameMouseY = yPos;
+        isFirstMouseMovement = false;
+    }
+
+    /*
+    To compute direction vector:
+        - Calculate offset since last frame
+        - Add offset values to the camera's yaw / pitch values
+        - Constrain max and min yaw / pitch values
+        - Compute front vector using Euler angles and trigonometry
+    */
+
+   float sensitivity = 0.05f;
+   float xOffset = (xPos - lastFrameMouseX) * sensitivity;
+   float yOffset = (lastFrameMouseY - yPos) * sensitivity;
+
+   lastFrameMouseX = xPos;
+   lastFrameMouseY = yPos;
+
+   cameraYaw += xOffset;
+   cameraPitch += yOffset;
+
+   if (cameraPitch > 89.0f)   cameraPitch = 89.0f;
+   if (cameraPitch < -89.0f)  cameraPitch = -89.0f;
+
+   glm::vec3 mouseFront;
+   mouseFront.x = cos(glm::radians(cameraPitch)) * cos(glm::radians(cameraYaw));
+   mouseFront.y = sin(glm::radians(cameraPitch));
+   mouseFront.z = cos(glm::radians(cameraPitch)) * sin(glm::radians(cameraYaw));
+   cameraFront = glm::normalize(mouseFront);
 }
 
 void defineTriangle()
@@ -196,7 +240,7 @@ void defineCube()
 }
 
 /* Compute the multiplication of the Model - View - Projection matrices */
-glm::mat4 getMVPMatrix(const unsigned int width, const unsigned int height, glm::vec3 startPos)
+glm::mat4 getMVPMatrix(glm::vec3 startPos)
 {
     glm::mat4 model, view, proj;
     model = view = proj = glm::mat4(1.0f);
@@ -216,7 +260,6 @@ glm::mat4 getMVPMatrix(const unsigned int width, const unsigned int height, glm:
 int main(void)
 {
     GLFWwindow* window;
-    const unsigned int width = 800, height = 600;
 
     /* Initialize the library */
     if (!glfwInit())
@@ -235,6 +278,12 @@ int main(void)
 
     /* Register resize callback */
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    /* Capture cursor, i.e. keep in window while in focus */
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    /* Handle cursor movements */
+    glfwSetCursorPosCallback(window, mouse_movement_callback);
 
     /* Load OpenGL function pointers from glad lib */
     gladLoadGL();
@@ -282,7 +331,7 @@ int main(void)
 
         for (int i = 0; i < 10; ++i)
         {
-            glm::mat4 mvpMatrix = getMVPMatrix(width, height, cubePositions[i]);
+            glm::mat4 mvpMatrix = getMVPMatrix(cubePositions[i]);
 
             /* Pass Model View Projection matrix into vertex shader */
             int mvpUniformLoc = glGetUniformLocation(myShaders.shaderProgramID, "mvp");
