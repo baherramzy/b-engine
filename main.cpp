@@ -9,19 +9,16 @@
 /* B defined classes */
 #include "lib/Shader/shader.cpp"
 #include "lib/Texture/texture.cpp"
+#include "lib/Camera/camera.cpp"
 
 const unsigned int width = 800, height = 600;
-
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 6.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+Camera camera;
 
 float frameDeltaTime = 0.0f;
 float lastFrameTimestamp = 0.0f;
 
 float lastFrameMouseX = width  / 2;
 float lastFrameMouseY = height / 2;
-float cameraPitch = 0.0f, cameraYaw = -90.0f;
 bool isFirstMouseMovement = true;
 
 /* Define window resize callback to adjust viewport */
@@ -40,15 +37,15 @@ void handleKeyboardEvents(GLFWwindow *window)
     frameDeltaTime = currentFrameTimestamp - lastFrameTimestamp;
     lastFrameTimestamp = currentFrameTimestamp;
 
-    float cameraSpeed = 3.0f * frameDeltaTime;
+    float cameraSpeed = 5.0f * frameDeltaTime;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
+        camera.moveForward(cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
+        camera.moveBackward(cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.moveLeft(cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.moveRight(cameraSpeed);
 }
 
 void mouse_movement_callback(GLFWwindow *window, double xPos, double yPos)
@@ -75,17 +72,17 @@ void mouse_movement_callback(GLFWwindow *window, double xPos, double yPos)
    lastFrameMouseX = xPos;
    lastFrameMouseY = yPos;
 
-   cameraYaw += xOffset;
-   cameraPitch += yOffset;
-
-   if (cameraPitch > 89.0f)   cameraPitch = 89.0f;
-   if (cameraPitch < -89.0f)  cameraPitch = -89.0f;
+   camera.addYaw(xOffset);
+   camera.addPitch(yOffset);
 
    glm::vec3 mouseFront;
+   float cameraPitch = camera.getPitch(), cameraYaw = camera.getYaw();
+
    mouseFront.x = cos(glm::radians(cameraPitch)) * cos(glm::radians(cameraYaw));
    mouseFront.y = sin(glm::radians(cameraPitch));
    mouseFront.z = cos(glm::radians(cameraPitch)) * sin(glm::radians(cameraYaw));
-   cameraFront = glm::normalize(mouseFront);
+
+   camera.setFront(glm::normalize(mouseFront));
 }
 
 void defineTriangle()
@@ -249,7 +246,7 @@ glm::mat4 getMVPMatrix(glm::vec3 startPos)
     model = glm::translate(model, startPos);
     model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-55.0f), glm::vec3(1.0f, 1.0f, 0.0f));
 
-    view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    view = camera.getViewMatrix();
 
     /* Apply perspective transformation */
     proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
