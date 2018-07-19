@@ -12,17 +12,6 @@ Camera::Camera()
     , mouseSensitivity { 0.07f }
 {}
 
-/* Getters */
-const float& Camera::getPitch() const
-{
-    return pitch;
-}
-
-const float& Camera::getYaw() const
-{
-    return yaw;
-}
-
 const glm::vec3 Camera::getRight() const
 {
     return glm::cross(front, up);
@@ -55,32 +44,6 @@ void Camera::moveRight(const float &speed)
     Camera::addToPos(glm::normalize(right) * speed);
 }
 
-/* Setters */
-void Camera::setPos(const glm::vec3 &newPos)
-{
-    pos = newPos;
-}
-
-void Camera::setFront(const glm::vec3 &newFront)
-{
-    front = newFront;
-}
-
-void Camera::setUp(const glm::vec3 &newUp)
-{
-    up = newUp;
-}
-
-void Camera::setPitch(const float &newPitch)
-{
-    pitch = newPitch;
-}
-
-void Camera::setYaw(const float &newYaw)
-{
-    yaw = newYaw;
-}
-
 /* Mouse event handler */
 /* Updates the camera's orientation based on mouse movement */
 void Camera::processMouseMovement(const float xOffset, const float yOffset)
@@ -96,7 +59,7 @@ void Camera::processMouseMovement(const float xOffset, const float yOffset)
     mouseFront.y = sin(glm::radians(pitch));
     mouseFront.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
 
-    setFront(glm::normalize(mouseFront));
+    front = glm::normalize(mouseFront);
 }
 
 /* Utility methods */

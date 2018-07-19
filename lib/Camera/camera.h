@@ -20,19 +20,8 @@ class Camera
         Camera();
 
         /* Getters */
-        const float& getPitch() const;
-        const float& getYaw() const;
-
         const glm::vec3 getRight() const;
         const glm::mat4 getViewMatrix() const;
-
-        /* Setters */
-        void setPos(const glm::vec3 &newPos);
-        void setFront(const glm::vec3 &newFront);
-        void setUp(const glm::vec3 &newUp);
-
-        void setPitch(const float &newPitch);
-        void setYaw(const float &newYaw);
 
         /* Movement methods */
         void moveForward(const float &speed);
