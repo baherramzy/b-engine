@@ -37,7 +37,7 @@ void handleKeyboardEvents(GLFWwindow *window)
     frameDeltaTime = currentFrameTimestamp - lastFrameTimestamp;
     lastFrameTimestamp = currentFrameTimestamp;
 
-    float cameraSpeed = 5.0f * frameDeltaTime;
+    float cameraSpeed = 4.0f * frameDeltaTime;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.moveForward(cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -65,24 +65,13 @@ void mouse_movement_callback(GLFWwindow *window, double xPos, double yPos)
         - Compute front vector using Euler angles and trigonometry
     */
 
-   float sensitivity = 0.05f;
-   float xOffset = (xPos - lastFrameMouseX) * sensitivity;
-   float yOffset = (lastFrameMouseY - yPos) * sensitivity;
+   float xOffset = xPos - lastFrameMouseX;
+   float yOffset = lastFrameMouseY - yPos;
 
    lastFrameMouseX = xPos;
    lastFrameMouseY = yPos;
 
-   camera.addYaw(xOffset);
-   camera.addPitch(yOffset);
-
-   glm::vec3 mouseFront;
-   float cameraPitch = camera.getPitch(), cameraYaw = camera.getYaw();
-
-   mouseFront.x = cos(glm::radians(cameraPitch)) * cos(glm::radians(cameraYaw));
-   mouseFront.y = sin(glm::radians(cameraPitch));
-   mouseFront.z = cos(glm::radians(cameraPitch)) * sin(glm::radians(cameraYaw));
-
-   camera.setFront(glm::normalize(mouseFront));
+   camera.processMouseMovement(xOffset, yOffset);
 }
 
 void defineTriangle()

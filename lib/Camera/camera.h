@@ -14,6 +14,7 @@ class Camera
 
     public:
         unsigned int cameraID;
+        float mouseSensitivity;
 
         /* Constructor */
         Camera();
@@ -38,6 +39,9 @@ class Camera
         void moveBackward(const float &speed);
         void moveLeft(const float &speed);
         void moveRight(const float &speed);
+
+        /* Mouse event handler */
+        void processMouseMovement(const float xOffset, const float yOffset);
 
         /* Utility methods */
         void addToPos(const glm::vec3 &posDelta);

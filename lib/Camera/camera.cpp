@@ -9,6 +9,7 @@ Camera::Camera()
     , yaw { -90.0f }
     , minPitch { -89.0f }
     , maxPitch { 89.0f }
+    , mouseSensitivity { 0.07f }
 {}
 
 /* Getters */
@@ -39,7 +40,7 @@ void Camera::moveForward(const float &speed)
 
 void Camera::moveBackward(const float &speed)
 {
-    Camera::addToPos(-speed * front);    
+    Camera::addToPos(-speed * front);
 }
 
 void Camera::moveLeft(const float &speed)
@@ -78,6 +79,24 @@ void Camera::setPitch(const float &newPitch)
 void Camera::setYaw(const float &newYaw)
 {
     yaw = newYaw;
+}
+
+/* Mouse event handler */
+/* Updates the camera's orientation based on mouse movement */
+void Camera::processMouseMovement(const float xOffset, const float yOffset)
+{
+    // Update yaw and pitch values based on horizontal
+    // and vertical mouse movements, respectively
+    addYaw(xOffset * mouseSensitivity);
+    addPitch(yOffset * mouseSensitivity);
+
+    // Compute new front vector
+    glm::vec3 mouseFront;
+    mouseFront.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    mouseFront.y = sin(glm::radians(pitch));
+    mouseFront.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+
+    setFront(glm::normalize(mouseFront));
 }
 
 /* Utility methods */
