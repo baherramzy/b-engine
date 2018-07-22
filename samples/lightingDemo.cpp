@@ -176,11 +176,8 @@ int main(void)
 
     defineCube();
 
-    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-
     Shader lightingShader("shaders/lighting.vert", "shaders/lighting.frag");
     lightingShader.use();
-    lightingShader.setVec3("lightPos", lightPos);
     lightingShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
     lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -199,7 +196,11 @@ int main(void)
         view = camera.getViewMatrix();
         proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
 
+        glm::vec3 lightPos(sin(glfwGetTime() * 1.2f) * 2.0f, 1.0f, cos(glfwGetTime() * 1.2f) * 2.0f);
+
         lightingShader.use();
+        lightingShader.setVec3("lightPos", lightPos);
+        lightingShader.setVec3("cameraPos", camera.pos);
         lightingShader.setMat4("view", view);
         lightingShader.setMat4("proj", proj);
         lightingShader.setMat4("model", model);

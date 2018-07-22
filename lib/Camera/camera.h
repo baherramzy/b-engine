@@ -8,12 +8,12 @@
 class Camera
 {
     private:
-        glm::vec3 pos, front, up;
-        float pitch, yaw;
         float minPitch, maxPitch;
 
     public:
         unsigned int cameraID;
+        glm::vec3 pos, front, up;
+        float pitch, yaw;
         float mouseSensitivity;
 
         /* Constructor */

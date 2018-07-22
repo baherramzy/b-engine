@@ -14,5 +14,8 @@ void main()
 {
    gl_Position = proj * view * model * vec4(aPos, 1.0);
    FragPos = vec3(model * vec4(aPos, 1.0));
-   normal = aNormal;
+
+   // Compute normal matrix to adjust for non-uniform scaling
+   // (Expensive to compute in the shader, but fine for demo purposes)
+   normal = mat3(transpose(inverse(model))) * aNormal;
 }
