@@ -178,8 +178,16 @@ int main(void)
 
     Shader lightingShader("shaders/lighting.vert", "shaders/lighting.frag");
     lightingShader.use();
-    lightingShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
-    lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    // Light source properties
+    lightingShader.setVec3("light.ambient", glm::vec3(1.0f, 1.0f, 1.0f));
+    lightingShader.setVec3("light.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+    lightingShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+    // Material light reflection properties
+    lightingShader.setVec3("material.ambient", glm::vec3(0.24725f, 0.1995f, 0.0745f));
+    lightingShader.setVec3("material.diffuse", glm::vec3(0.75164f, 0.60648f, 0.22648f));
+    lightingShader.setVec3("material.specular", glm::vec3(0.628281f, 0.555802f, 0.366065f));
+    lightingShader.setFloat("material.shine", 0.4f * 128.0f);
 
     Shader lampShader("shaders/lamp.vert", "shaders/lamp.frag");
 
@@ -196,10 +204,10 @@ int main(void)
         view = camera.getViewMatrix();
         proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
 
-        glm::vec3 lightPos(sin(glfwGetTime() * 1.2f) * 2.0f, 1.0f, cos(glfwGetTime() * 1.2f) * 2.0f);
+        glm::vec3 lightPos(sin(glfwGetTime() * 1.2f) * 2.0f, sin(glfwGetTime() * 1.2f) * 1.5f, cos(glfwGetTime() * 1.2f) * 2.0f);
 
         lightingShader.use();
-        lightingShader.setVec3("lightPos", lightPos);
+        lightingShader.setVec3("light.position", lightPos);
         lightingShader.setVec3("cameraPos", camera.pos);
         lightingShader.setMat4("view", view);
         lightingShader.setMat4("proj", proj);
