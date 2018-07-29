@@ -187,6 +187,11 @@ int main(void)
     lightingShader.setVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
     lightingShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
+    // Light attenuation parameters
+    lightingShader.setFloat("light.attConstant", 1.0f);
+    lightingShader.setFloat("light.attLinear", 0.07f);
+    lightingShader.setFloat("light.attQuadratic", 0.017f);
+
     // Material light reflection properties
     lightingShader.setVec3("material.specular", glm::vec3(0.628281f, 0.555802f, 0.366065f));
     lightingShader.setFloat("material.shine", 0.4f * 128.0f);
@@ -210,31 +215,52 @@ int main(void)
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::vec3 cubePositions[] = {
+            glm::vec3( 0.0f,  0.0f,  0.0f),
+            glm::vec3( 2.0f,  5.0f, -15.0f),
+            glm::vec3(-1.5f, -2.2f, -2.5f),
+            glm::vec3(-3.8f, -2.0f, -12.3f),
+            glm::vec3( 2.4f, -0.4f, -3.5f),
+            glm::vec3(-1.7f,  3.0f, -7.5f),
+            glm::vec3( 1.3f, -2.0f, -2.5f),
+            glm::vec3( 1.5f,  2.0f, -2.5f),
+            glm::vec3( 1.5f,  0.2f, -1.5f),
+            glm::vec3(-1.3f,  1.0f, -1.5f)
+        };
+
         glm::mat4 model, view, proj;
-        model = view = proj = glm::mat4(1.0f);
+        view = proj = glm::mat4(1.0f);
 
         view = camera.getViewMatrix();
         proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
 
-        glm::vec3 lightPos(sin(glfwGetTime() * 1.2f) * 2.0f, sin(glfwGetTime() * 1.2f) * 1.5f, cos(glfwGetTime() * 1.2f) * 2.0f);
+        // glm::vec3 lightPos(sin(glfwGetTime() * 1.2f) * 2.0f, sin(glfwGetTime() * 1.2f) * 1.5f, cos(glfwGetTime() * 1.2f) * 2.0f);
+        glm::vec3 lightPos(1.0f, 2.0f, 2.0f);
 
         lightingShader.use();
         lightingShader.setVec3("light.position", lightPos);
         lightingShader.setVec3("cameraPos", camera.pos);
         lightingShader.setMat4("view", view);
         lightingShader.setMat4("proj", proj);
-        lightingShader.setMat4("model", model);
 
         // Diffuse map
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMapID);
+
         // Specular map
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, specularMapID);
 
-
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        for(int i = 0; i < 10; ++i)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            lightingShader.setMat4("model", model);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         lampShader.use();
         lampShader.setMat4("view", view);
