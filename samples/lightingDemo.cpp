@@ -238,7 +238,11 @@ int main(void)
         glm::vec3 lightPos(1.0f, 2.0f, 2.0f);
 
         lightingShader.use();
-        lightingShader.setVec3("light.position", lightPos);
+        lightingShader.setVec3("light.position", camera.pos);
+        lightingShader.setVec3("light.direction", camera.front);
+        lightingShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+        lightingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
+
         lightingShader.setVec3("cameraPos", camera.pos);
         lightingShader.setMat4("view", view);
         lightingShader.setMat4("proj", proj);
