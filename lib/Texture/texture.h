@@ -10,7 +10,7 @@ class Texture
 {
     public:
         Texture();
-        void load(const char* path, int width, int height);
+        unsigned int load(const char* path, int width, int height);
     private:
         int currentTexUnits = 0;
         int maxTexUnits = 32;

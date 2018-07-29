@@ -3,7 +3,7 @@
 /* Public */
 Texture::Texture() {}
 
-void Texture::load(const char* path, int width, int height)
+unsigned int Texture::load(const char* path, int width, int height)
 {
     unsigned int texture;
     glGenTextures(1, &texture);
@@ -37,7 +37,7 @@ void Texture::load(const char* path, int width, int height)
     if (data)
     {
         int colorMode = getColorModeFromFileExt(path);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, colorMode, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, colorMode, width, height, 0, colorMode, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 
@@ -48,6 +48,8 @@ void Texture::load(const char* path, int width, int height)
 
     /* Free image memory */
     stbi_image_free(data);
+
+    return texture;
 }
 
 /* Private */
