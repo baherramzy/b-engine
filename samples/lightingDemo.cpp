@@ -206,6 +206,51 @@ int main(void)
     const unsigned int specularMapID = specularMap.load("assets/Textures/specular_wood_container.png", 500, 500);
     lightingShader.setInt("material.specular", 1);
 
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3( 0.7f,  0.2f,  2.0f),
+        glm::vec3( 2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3( 0.0f,  0.0f, -3.0f)
+    };
+
+    // Individual point light definitions
+    lightingShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+    lightingShader.setVec3("pointLights[0].ambient", glm::vec3(0.05f, 0.05f, 0.05f));
+    lightingShader.setVec3("pointLights[0].diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
+    lightingShader.setVec3("pointLights[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    lightingShader.setFloat("pointLights[0].attConstant", 1.0f);
+    lightingShader.setFloat("pointLights[0].attLinear", 0.09);
+    lightingShader.setFloat("pointLights[0].attQuadratic", 0.032);
+
+    lightingShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+    lightingShader.setVec3("pointLights[1].ambient", glm::vec3(0.05f, 0.05f, 0.05f));
+    lightingShader.setVec3("pointLights[1].diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
+    lightingShader.setVec3("pointLights[1].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    lightingShader.setFloat("pointLights[1].attConstant", 1.0f);
+    lightingShader.setFloat("pointLights[1].attLinear", 0.09);
+    lightingShader.setFloat("pointLights[1].attQuadratic", 0.032);
+
+    lightingShader.setVec3("pointLights[2].position", pointLightPositions[2]);
+    lightingShader.setVec3("pointLights[2].ambient", glm::vec3(0.05f, 0.05f, 0.05f));
+    lightingShader.setVec3("pointLights[2].diffuse",glm::vec3( 0.8f, 0.8f, 0.8f));
+    lightingShader.setVec3("pointLights[2].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    lightingShader.setFloat("pointLights[2].attConstant", 1.0f);
+    lightingShader.setFloat("pointLights[2].attLinear", 0.09);
+    lightingShader.setFloat("pointLights[2].attQuadratic", 0.032);
+
+    lightingShader.setVec3("pointLights[3].position", pointLightPositions[3]);
+    lightingShader.setVec3("pointLights[3].ambient", glm::vec3(0.05f, 0.05f, 0.05f));
+    lightingShader.setVec3("pointLights[3].diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
+    lightingShader.setVec3("pointLights[3].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    lightingShader.setFloat("pointLights[3].attConstant", 1.0f);
+    lightingShader.setFloat("pointLights[3].attLinear", 0.09);
+    lightingShader.setFloat("pointLights[3].attQuadratic", 0.032);
+
+    lightingShader.setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+    lightingShader.setVec3("dirLight.ambient", glm::vec3(0.05f, 0.05f, 0.05f));
+    lightingShader.setVec3("dirLight.diffuse", glm::vec3(0.4f, 0.4f, 0.4f));
+    lightingShader.setVec3("dirLight.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+
     Shader lampShader("shaders/lamp.vert", "shaders/lamp.frag");
 
     while (!glfwWindowShouldClose(window))
@@ -244,6 +289,7 @@ int main(void)
         lightingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 
         lightingShader.setVec3("cameraPos", camera.pos);
+
         lightingShader.setMat4("view", view);
         lightingShader.setMat4("proj", proj);
 
@@ -270,9 +316,18 @@ int main(void)
         lampShader.setMat4("view", view);
         lampShader.setMat4("proj", proj);
 
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
-        lampShader.setMat4("model", model);
+        // model = glm::translate(model, lightPos);
+        // model = glm::scale(model, glm::vec3(0.2f));
+        // lampShader.setMat4("model", model);
+        for(int i = 0; i < 4; ++i)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, pointLightPositions[i]);
+            model = glm::scale(model, glm::vec3(0.2f));
+            lampShader.setMat4("model", model);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
